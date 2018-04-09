@@ -3,12 +3,32 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var colors = require('colors')
+var mongoose = require('mongoose')
 
 var indexRouter = require('./routes/index');
 var questionsRouter = require('./routes/questions');
-var answersRouter = require('./routes/answers');
+var answersRouter = require('./routes/answers')
+
+// load enviornment variables
+require('dotenv').config()
+
+const config = require('./config')
+
+mongoose.Promise = require('bluebird')
+
+mongoose.connect(config.database)
+  .then(() => console.log('Connected to UV database'.green))
+  .catch(err => console.error(err))
 
 var app = express();
+
+
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
