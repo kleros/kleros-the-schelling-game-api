@@ -13,9 +13,10 @@
     "dotenv": "^5.0.1",
     "express": "~4.16.0",
     "http-errors": "~1.6.2",
+    "lodash": "^4.17.5",
     "mongoose": "^5.0.13",
     "morgan": "~1.9.0",
-    "nodemon": "^1.17.2",
+    "nodemon": "^1.17.3",
     "pug": "2.0.0-beta11"
   }
 }
