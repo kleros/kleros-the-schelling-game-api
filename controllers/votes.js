@@ -63,11 +63,10 @@ exports.addVote = async (req, res) => {
     proposalWins = 3
   }
 
-  console.log('proposalWins', proposalWins)
-
   if (newVote.voteId === proposalWins) {
     result = 'win'
   } else {
+    ProfileInstance.questions = []
     ProfileInstance.session = ProfileInstance.session + 1
   }
 
