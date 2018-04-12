@@ -27,7 +27,16 @@ exports.addVote = async (req, res) => {
     )
   }
 
-  ProfileInstance.questions.push(newVote.questionId)
+  if (ProfileInstance.questions.length <= ProfileInstance.votes.length) {
+    return res.status(400).json(
+      {
+        error: 'Maybe you need to create a question before call this entrypoint.'
+      }
+    )
+  }
+
+  // add votes in the profile session to have not duplicate questions
+  ProfileInstance.votes.push(newVote.questionId)
 
   const countVote0 = await countVotesByQuestionAndVoteDb(
     newVote.questionId,
@@ -36,6 +45,7 @@ exports.addVote = async (req, res) => {
 
   let proposalWins = 0
 
+  // need refactoring
   const countVote1 = await countVotesByQuestionAndVoteDb(
     newVote.questionId,
     1
@@ -67,6 +77,7 @@ exports.addVote = async (req, res) => {
     result = 'win'
   } else {
     ProfileInstance.questions = []
+    ProfileInstance.votes = []
     ProfileInstance.session = ProfileInstance.session + 1
   }
 

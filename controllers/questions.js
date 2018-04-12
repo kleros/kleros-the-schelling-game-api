@@ -28,17 +28,37 @@ exports.getQuestion = async (req, res) => {
         session: 0
       }
     )
+
+    await updateProfileDb(ProfileInstance)
+  }
+
+  if (ProfileInstance.questions.length !== ProfileInstance.votes.length) {
+    const questionIdMustAnswer = ProfileInstance.questions.filter(
+      q => !ProfileInstance.votes.includes(q)
+    )
+
+    console.log('questionIdMustAnswer',questionIdMustAnswer)
+
+    console.log('questions',ProfileInstance.questions)
+    console.log('votes',ProfileInstance.votes)
+
+    const questionMustAnswer = await getQuestionDb(questionIdMustAnswer[0])
+
+    return res.status(201).json(questionMustAnswer)
   }
 
   const questionsAll = await getAllQuestionsDb()
-
-  console.log(questionsAll)
 
   const questionsAllFilter = questionsAll.filter(
     q => !ProfileInstance.questions.includes(q)
   )
 
   const questionId = questionsAllFilter[Math.floor(Math.random() * questionsAllFilter.length)]
+
+  // add questions in the profile session to have not duplicate questions
+  ProfileInstance.questions.push(questionId)
+
+  await updateProfileDb(ProfileInstance)
 
   const question = await getQuestionDb(questionId)
 
@@ -100,5 +120,18 @@ const getQuestionDb = id => {
           resolve(Question)
         }
       )
+  })
+}
+
+const updateProfileDb = Profile => {
+  return new Promise((resolve, reject) => {
+    Profile.save(
+      (err, Profile) => {
+        if (err) {
+          reject(Error(err))
+        }
+        resolve(Profile)
+      }
+    )
   })
 }
