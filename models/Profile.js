@@ -10,7 +10,10 @@ const ProfileSchema = new Schema({
   updated_at: {
     type: Date,
     default: Date.now
-  }
+  },
+  score: Number,
+  best_score: Number,
+  lastVoteTime: Date
 })
 
 module.exports = mongoose.model('Profile', ProfileSchema)

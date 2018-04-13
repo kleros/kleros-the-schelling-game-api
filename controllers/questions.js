@@ -25,22 +25,27 @@ exports.getQuestion = async (req, res) => {
     ProfileInstance = new Profile(
       {
         ip,
-        session: 0
+        session: 0,
+        score: 0,
+        best_score: 0
       }
     )
 
     await updateProfileDb(ProfileInstance)
   }
 
+  const MAX_SESSIONS_PER_DAY = process.env.MAX_SESSIONS_PER_DAY ? process.env.MAX_SESSIONS_PER_DAY : 10
+
+  // 1 day in milliseconds
+  if (ProfileInstance.lastVoteTime !== undefined && ProfileInstance.session >= MAX_SESSIONS_PER_DAY && Date.now() - ProfileInstance.lastVoteTime.getTime() < 24 * 3600 * 1000) {
+    return res.status(201).json({msg: 'You have made 10 sessions. Try tomorrow.'})
+  }
+
+  // if a questions has no answer, this question is displayed
   if (ProfileInstance.questions.length !== ProfileInstance.votes.length) {
     const questionIdMustAnswer = ProfileInstance.questions.filter(
       q => !ProfileInstance.votes.includes(q)
     )
-
-    console.log('questionIdMustAnswer',questionIdMustAnswer)
-
-    console.log('questions',ProfileInstance.questions)
-    console.log('votes',ProfileInstance.votes)
 
     const questionMustAnswer = await getQuestionDb(questionIdMustAnswer[0])
 

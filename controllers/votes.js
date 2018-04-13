@@ -22,7 +22,9 @@ exports.addVote = async (req, res) => {
     ProfileInstance = new Profile(
       {
         ip,
-        session: 0
+        session: 0,
+        score: 0,
+        best_score: 0
       }
     )
   }
@@ -73,17 +75,29 @@ exports.addVote = async (req, res) => {
     proposalWins = 3
   }
 
+  ProfileInstance.lastVoteTime = new Date()
+
   if (newVote.voteId === proposalWins) {
     result = 'win'
+    ProfileInstance.score = ProfileInstance.score + 1
   } else {
     ProfileInstance.questions = []
     ProfileInstance.votes = []
     ProfileInstance.session = ProfileInstance.session + 1
+
+    if (ProfileInstance.score > ProfileInstance.best_score) {
+      ProfileInstance.best_score = ProfileInstance.score
+    }
   }
 
   await updateProfileDb(ProfileInstance)
 
-  return res.status(201).json({result})
+  return res.status(201).json({
+    result,
+    score: ProfileInstance.score,
+    session: ProfileInstance.session,
+    lastVoteTime: ProfileInstance.lastVoteTime
+  })
 }
 
 const addVoteDb = Vote => {
