@@ -31,7 +31,8 @@ exports.getQuestion = async (req, res) => {
         score: 0,
         best_score: 0,
         best_score_timestamp: 0,
-        startVoteTime: new Date()
+        startVoteTime: new Date(),
+        username: 'guest'
       }
     )
 
