@@ -9,6 +9,8 @@ exports.addQuestion = async (req, res) => {
     ...req.body
   }))
 
+  newQuestion.proposals = newQuestion.proposals[0].split(',')
+
   return res.status(201).json(newQuestion)
 }
 
@@ -50,6 +52,10 @@ exports.getQuestion = async (req, res) => {
     )
 
     const questionMustAnswer = await getQuestionDb(questionIdMustAnswer[0])
+
+    if (_.isEmpty(questionMustAnswer)) {
+      return res.status(201).json({msg: 'no question'})
+    }
 
     return res.status(201).json(questionMustAnswer)
   }

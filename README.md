@@ -10,6 +10,7 @@
       * [Run mongo in local](#run-mongo-in-local)
   * [Set environment variables](#set-environment-variables)
   * [Add profile](#add-profile)
+  * [Add question](#add-question)
   * [Run development environment](#run-development-environment)
 * [Deployment](#deployment)
   * [Redeployment](#redeployment)
@@ -85,16 +86,25 @@ DB_URI={uri of mongo instance e.g. mongodb://localhost/the-schelling-game}
 IPS_ALLOWED={add a comma separated list with no spaces of ips to allow e.g. ::1,127.0.0.1}
 ```
 
-### Add a profile
+### Run development environment
 
 ```
-yarn start:development
+yarn start:dev
 ```
 
-### Add a profile
+### Add profile
 
 To add an user you can use the software `compass` and add an entry in the
 `the-schelling-game` collection.
+
+### Add question
+
+Use postman and the `x-www-form-urlencoded` format.
+
+```
+question:What is the best speaker?
+proposals:Vitalik,Vlad,Antonopoulos,McFee
+```
 
 ## API
 

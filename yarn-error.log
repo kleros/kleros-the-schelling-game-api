@@ -19,8 +19,11 @@ npm manifest:
     "version": "0.0.0",
     "private": true,
     "scripts": {
-      "start": "node ./bin/www",
-      "devstart": "nodemon ./bin/www"
+      "start": "pm2 start bin/www --name kleros-store",
+      "restart": "pm2 restart all",
+      "test": "NODE_ENV=test SERVER_PORT=6788 jest --forceExit",
+      "start:dev": "nodemon bin/www",
+      "inspect": "node --inspect bin/www"
     },
     "dependencies": {
       "body-parser": "^1.18.2",
@@ -2542,7 +2545,7 @@ Lockfile:
       window-size "0.1.0"
 
 Trace: 
-  Error: Command "dev:start" not found. Did you mean "devstart"?
+  Error: Command "dev:start" not found.
       at new MessageError (/usr/local/lib/node_modules/yarn/lib/cli.js:186:110)
       at /usr/local/lib/node_modules/yarn/lib/cli.js:86874:17
       at Generator.next (<anonymous>)

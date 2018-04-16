@@ -3,10 +3,7 @@ const Schema = mongoose.Schema
 
 const QuestionSchema = new Schema({
   question: String,
-  proposals: [{
-    proposal: String,
-    description: String
-  }],
+  proposals: [String],
   created_at: {
     type: Date,
     default: Date.now
