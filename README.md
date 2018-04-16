@@ -1,4 +1,4 @@
-# Kleros store
+# The Schelling game
 
 ## Table of Contents
 

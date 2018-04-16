@@ -16,8 +16,6 @@ exports.updateProfilePseudo = async (req, res) => {
 
   ProfileInstance.username = req.body.username
 
-  console.log(ProfileInstance)
-
   ProfileInstance = await updateProfileDb(ProfileInstance)
 
   return res.status(201).json(ProfileInstance)
