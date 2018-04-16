@@ -17,19 +17,7 @@ exports.addVote = async (req, res) => {
 
   let ProfileInstance = await getProfileDb(ip)
 
-  // if not exists, we create this new profile
-  if (_.isNull(ProfileInstance)) {
-    ProfileInstance = new Profile(
-      {
-        ip,
-        session: 0,
-        score: 0,
-        best_score: 0
-      }
-    )
-  }
-
-  if (ProfileInstance.questions.length <= ProfileInstance.votes.length) {
+  if (_.isNull(ProfileInstance) || ProfileInstance.questions.length <= ProfileInstance.votes.length) {
     return res.status(400).json(
       {
         error: 'Maybe you need to create a question before call this entrypoint.'
@@ -77,6 +65,10 @@ exports.addVote = async (req, res) => {
 
   ProfileInstance.lastVoteTime = new Date()
 
+  if (ProfileInstance.score === 0) {
+    ProfileInstance.startVoteTime = new Date()
+  }
+
   if (newVote.voteId === proposalWins) {
     result = 'win'
     ProfileInstance.score = ProfileInstance.score + 1
@@ -87,7 +79,10 @@ exports.addVote = async (req, res) => {
 
     if (ProfileInstance.score > ProfileInstance.best_score) {
       ProfileInstance.best_score = ProfileInstance.score
+      ProfileInstance.best_score_timestamp = ProfileInstance.lastVoteTime.getTime() - ProfileInstance.startVoteTime.getTime()
     }
+
+    ProfileInstance.score = 0
   }
 
   await updateProfileDb(ProfileInstance)
@@ -96,7 +91,10 @@ exports.addVote = async (req, res) => {
     result,
     score: ProfileInstance.score,
     session: ProfileInstance.session,
-    lastVoteTime: ProfileInstance.lastVoteTime
+    lastVoteTime: ProfileInstance.lastVoteTime,
+    startVoteTime: ProfileInstance.startVoteTime,
+    bestScore: ProfileInstance.best_score,
+    bestScoreTimestamp: ProfileInstance.best_score_timestamp
   })
 }
 

@@ -27,7 +27,9 @@ exports.getQuestion = async (req, res) => {
         ip,
         session: 0,
         score: 0,
-        best_score: 0
+        best_score: 0,
+        best_score_timestamp: 0,
+        startVoteTime: new Date()
       }
     )
 

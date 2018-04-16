@@ -1,5 +1,5 @@
 Arguments: 
-  /usr/local/Cellar/node/9.3.0_1/bin/node /usr/local/bin/yarn start
+  /usr/local/Cellar/node/9.3.0_1/bin/node /usr/local/bin/yarn dev:start
 
 PATH: 
   /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/dotnet:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/Library/TeX/texbin:/Applications/Xamarin Workbooks.app/Contents/SharedSupport/path-bin
@@ -23,6 +23,7 @@ npm manifest:
       "devstart": "nodemon ./bin/www"
     },
     "dependencies": {
+      "body-parser": "^1.18.2",
       "colors": "^1.2.1",
       "cookie-parser": "~1.4.3",
       "debug": "~2.6.9",
@@ -265,7 +266,7 @@ Lockfile:
     version "3.5.0"
     resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.0.tgz#791420d7f551eea2897453a8a77653f96606d67c"
   
-  body-parser@1.18.2:
+  body-parser@1.18.2, body-parser@^1.18.2:
     version "1.18.2"
     resolved "https://registry.yarnpkg.com/body-parser/-/body-parser-1.18.2.tgz#87678a19d84b47d859b83199bd59bce222b10454"
     dependencies:
@@ -2541,16 +2542,14 @@ Lockfile:
       window-size "0.1.0"
 
 Trace: 
-  Error: Command failed.
-  Exit code: 1
-  Command: sh
-  Arguments: -c node ./bin/www
-  Directory: /private/tmp/kleros-the-schelling-game-api
-  Output:
-  
-      at ProcessTermError.MessageError (/usr/local/lib/node_modules/yarn/lib/cli.js:186:110)
-      at new ProcessTermError (/usr/local/lib/node_modules/yarn/lib/cli.js:226:113)
-      at ChildProcess.<anonymous> (/usr/local/lib/node_modules/yarn/lib/cli.js:30822:17)
-      at ChildProcess.emit (events.js:159:13)
-      at maybeClose (internal/child_process.js:943:16)
-      at Process.ChildProcess._handle.onexit (internal/child_process.js:220:5)
+  Error: Command "dev:start" not found. Did you mean "devstart"?
+      at new MessageError (/usr/local/lib/node_modules/yarn/lib/cli.js:186:110)
+      at /usr/local/lib/node_modules/yarn/lib/cli.js:86874:17
+      at Generator.next (<anonymous>)
+      at step (/usr/local/lib/node_modules/yarn/lib/cli.js:98:30)
+      at /usr/local/lib/node_modules/yarn/lib/cli.js:116:14
+      at new Promise (<anonymous>)
+      at new F (/usr/local/lib/node_modules/yarn/lib/cli.js:23457:28)
+      at /usr/local/lib/node_modules/yarn/lib/cli.js:95:12
+      at runCommand (/usr/local/lib/node_modules/yarn/lib/cli.js:86879:22)
+      at Object.<anonymous> (/usr/local/lib/node_modules/yarn/lib/cli.js:86979:14)

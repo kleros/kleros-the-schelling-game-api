@@ -10,6 +10,7 @@
       * [Run mongo in local](#run-mongo-in-local)
   * [Set environment variables](#set-environment-variables)
   * [Add profile](#add-profile)
+  * [Run development environment](#run-development-environment)
 * [Deployment](#deployment)
   * [Redeployment](#redeployment)
 * [Set https](#set-https)
@@ -86,6 +87,12 @@ IPS_ALLOWED={add a comma separated list with no spaces of ips to allow e.g. ::1,
 
 ### Add a profile
 
+```
+yarn start:development
+```
+
+### Add a profile
+
 To add an user you can use the software `compass` and add an entry in the
 `the-schelling-game` collection.
 
@@ -127,12 +134,18 @@ apt install cmdtest
 npm install pm2 -g
 ```
 
+### Install nodemon
+
+```
+npm install nodemon -g
+```
+
 ### Configuration
 
 Use production configuration :
 ```
 mv bin/www.prod bin/www
-pm2 start bin/www # start the server
+yarn start
 ```
 
 ### Redeployment
