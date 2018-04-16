@@ -1,5 +1,3 @@
-const _ = require('lodash')
-
 const Profile = require('../models/Profile')
 
 exports.getBestScores = async (req, res) => {

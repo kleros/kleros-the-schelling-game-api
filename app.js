@@ -10,6 +10,7 @@ const mongoose = require('mongoose')
 const indexRouter = require('./routes/index')
 const questionsRouter = require('./routes/questions')
 const scoresRouter = require('./routes/scores')
+const profilesRouter = require('./routes/profiles')
 
 // load enviornment variables
 require('dotenv').config()
@@ -43,6 +44,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 app.use('/', indexRouter)
 app.use('/questions', questionsRouter)
 app.use('/scores', scoresRouter)
+app.use('/profiles', profilesRouter)
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => next(createError(404)))

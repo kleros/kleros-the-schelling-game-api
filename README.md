@@ -99,7 +99,7 @@ To add an user you can use the software `compass` and add an entry in the
 
 ### Add question
 
-Use postman and the `x-www-form-urlencoded` format.
+Use [Postman](https://www.getpostman.com/) and the `x-www-form-urlencoded` format.
 
 ```
 question:What is the best speaker?

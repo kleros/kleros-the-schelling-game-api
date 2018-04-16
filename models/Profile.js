@@ -15,7 +15,8 @@ const ProfileSchema = new Schema({
   best_score: Number,
   best_score_timestamp: Number,
   lastVoteTime: Date,
-  startVoteTime: Date
+  startVoteTime: Date,
+  username: String
 })
 
 module.exports = mongoose.model('Profile', ProfileSchema)
