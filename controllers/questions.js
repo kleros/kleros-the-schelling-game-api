@@ -5,6 +5,11 @@ const Question = require('../models/Question')
 const Profile = require('../models/Profile')
 
 exports.addQuestion = async (req, res) => {
+  // secure this route (hash is not necessary because it's an env var)
+  if (req.body.password !== process.env.SECRET) {
+    return res.status(201).json({msg: 'access denied'})
+  }
+
   const newQuestion = await addQuestionDb(new Question({
     ...req.body
   }))
