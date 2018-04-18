@@ -88,6 +88,8 @@ IPS_ALLOWED={add a comma separated list with no spaces of ips to allow e.g. ::1,
 
 ### Run development environment
 
+Assume `nodemon` is installed.
+
 ```
 yarn start:dev
 ```
@@ -144,13 +146,9 @@ apt install cmdtest
 npm install pm2 -g
 ```
 
-### Install nodemon
-
-```
-npm install nodemon -g
-```
-
 ### Configuration
+
+Clone the repo and run `yarn` to install the dependencies.
 
 Use production configuration :
 ```

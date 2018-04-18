@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "pm2 start bin/www --name kleros-store",
+    "start": "pm2 start bin/www --name kleros-the-schelling-game",
     "restart": "pm2 restart all",
     "test": "NODE_ENV=test SERVER_PORT=6788 jest --forceExit",
     "start:dev": "nodemon bin/www",
