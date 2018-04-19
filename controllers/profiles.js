@@ -2,26 +2,35 @@ const _ = require('lodash')
 
 const Profile = require('../models/Profile')
 
-exports.updateProfilePseudo = async (req, res) => {
-  const ip = (req.headers['x-forwarded-for'] ||
-     req.connection.remoteAddress ||
-     req.socket.remoteAddress ||
-     req.connection.socket.remoteAddress).split(',')[0]
-
-  let ProfileInstance = await getProfileDb(ip)
+exports.addProfile = async (req, res) => {
+  let ProfileInstance = await getProfileByTelegramHashDb(req.body.hash)
 
   if (_.isNull(ProfileInstance)) {
-    return res.status(201).json({msg: 'profile not found'})
+    ProfileInstance = new Profile(
+      {
+        session: 0,
+        score: 0,
+        best_score: 0,
+        best_score_timestamp: 0,
+        startVoteTime: new Date(),
+        username: req.body.username,
+        telegram_id: req.body.id,
+        photo_url: req.body.photo_url,
+        auth_date: req.body.auth_date,
+        first_name: req.body.first_name,
+        hash: req.body.hash
+      }
+    )
+  } else {
+    return res.status(201).json({msg: 'User already exists'})
   }
 
-  ProfileInstance.username = req.body.username
-
-  ProfileInstance = await updateProfileDb(ProfileInstance)
+  await addProfileDb(ProfileInstance)
 
   return res.status(201).json(ProfileInstance)
 }
 
-const updateProfileDb = Profile => {
+const addProfileDb = Profile => {
   return new Promise((resolve, reject) => {
     Profile.save(
       (err, Profile) => {
@@ -34,11 +43,10 @@ const updateProfileDb = Profile => {
   })
 }
 
-const getProfileDb = ip => {
+const getProfileByTelegramHashDb = hash => {
   return new Promise((resolve, reject) => {
     Profile
-      .findOne({ip})
-      .sort('-updated_at')
+      .findOne({hash})
       .exec(
         (err, Profile) => {
           if (err) {

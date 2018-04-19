@@ -2,7 +2,6 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const ProfileSchema = new Schema({
-  ip: String,
   session: Number,
   question: Object,
   questions: Array,
@@ -16,7 +15,12 @@ const ProfileSchema = new Schema({
   best_score_timestamp: Number,
   lastVoteTime: Date,
   startVoteTime: Date,
-  username: String
+  username: String,
+  telegram_id: String,
+  hash: String,
+  first_name: String,
+  photo_url: String,
+  auth_date: Number
 })
 
 module.exports = mongoose.model('Profile', ProfileSchema)

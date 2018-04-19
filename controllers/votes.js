@@ -10,14 +10,13 @@ exports.addVote = async (req, res) => {
     ...req.body
   }))
 
-  const ip = (req.headers['x-forwarded-for'] ||
-     req.connection.remoteAddress ||
-     req.socket.remoteAddress ||
-     req.connection.socket.remoteAddress).split(',')[0]
+  let ProfileInstance = await getProfileByTelegramHashDb(req.body.hash)
 
-  let ProfileInstance = await getProfileDb(ip)
+  if (_.isNull(ProfileInstance)) {
+    return res.status(201).json({msg: 'User is not login'})
+  }
 
-  if (_.isNull(ProfileInstance) || ProfileInstance.questions.length <= ProfileInstance.votes.length) {
+  if (ProfileInstance.questions.length <= ProfileInstance.votes.length) {
     return res.status(400).json(
       {
         error: 'Maybe you need to create a question before call this entrypoint.'
@@ -137,11 +136,10 @@ const countVotesByQuestionAndVoteDb = (questionId, voteId) => {
   })
 }
 
-const getProfileDb = ip => {
+const getProfileByTelegramHashDb = hash => {
   return new Promise((resolve, reject) => {
     Profile
-      .findOne({ip})
-      .sort('-updated_at')
+      .findOne({hash})
       .exec(
         (err, Profile) => {
           if (err) {

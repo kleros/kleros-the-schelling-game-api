@@ -4,15 +4,41 @@ const mongoose = require('mongoose')
 const Question = require('../models/Question')
 const Profile = require('../models/Profile')
 
-exports.addQuestion = async (req, res) => {
+exports.updateQuestion = async (req, res) => {
   // secure this route (hash is not necessary because it's an env var)
   if (req.body.password !== process.env.SECRET) {
     return res.status(201).json({msg: 'access denied'})
   }
 
-  const newQuestion = await addQuestionDb(new Question({
+  const questionDb = await getQuestionDb(req.body.questionId)
+
+  let updateQuestion = new Question({
     ...req.body
-  }))
+  })
+
+  updateQuestion.proposals = updateQuestion.proposals[0].split(',')
+
+  const questionUpdated = Object.assign(questionDb, updateQuestion)
+
+  const questionUpdatedDb = await updateQuestionDb(questionUpdated)
+
+  return res.status(201).json(questionUpdatedDb)
+}
+
+exports.addQuestion = async (req, res) => {
+  let newQuestion = new Question({
+    ...req.body
+  })
+
+  const ip = (req.headers['x-forwarded-for'] ||
+   req.connection.remoteAddress ||
+   req.socket.remoteAddress ||
+   req.connection.socket.remoteAddress).split(',')[0]
+
+  newQuestion.ip = ip
+  newQuestion.valid = false
+
+  newQuestion = await addQuestionDb(newQuestion)
 
   newQuestion.proposals = newQuestion.proposals[0].split(',')
 
@@ -20,28 +46,10 @@ exports.addQuestion = async (req, res) => {
 }
 
 exports.getQuestion = async (req, res) => {
-  const ip = (req.headers['x-forwarded-for'] ||
-     req.connection.remoteAddress ||
-     req.socket.remoteAddress ||
-     req.connection.socket.remoteAddress).split(',')[0]
+  let ProfileInstance = await getProfileByTelegramHashDb(req.params.hash)
 
-  let ProfileInstance = await getProfileDb(ip)
-
-  // if not exists, we create this new profile
   if (_.isNull(ProfileInstance)) {
-    ProfileInstance = new Profile(
-      {
-        ip,
-        session: 0,
-        score: 0,
-        best_score: 0,
-        best_score_timestamp: 0,
-        startVoteTime: new Date(),
-        username: 'guest'
-      }
-    )
-
-    await updateProfileDb(ProfileInstance)
+    return res.status(201).json({msg: 'User is not login'})
   }
 
   const MAX_SESSIONS_PER_DAY = process.env.MAX_SESSIONS_PER_DAY ? process.env.MAX_SESSIONS_PER_DAY : 10
@@ -95,22 +103,6 @@ const addQuestionDb = Question => {
   })
 }
 
-const getProfileDb = ip => {
-  return new Promise((resolve, reject) => {
-    Profile
-      .findOne({ip})
-      .sort('-updated_at')
-      .exec(
-        (err, Profile) => {
-          if (err) {
-            reject(err)
-          }
-          resolve(Profile)
-        }
-      )
-  })
-}
-
 const getAllQuestionsDb = () => {
   return new Promise((resolve, reject) => {
     Question
@@ -150,6 +142,34 @@ const updateProfileDb = Profile => {
           reject(Error(err))
         }
         resolve(Profile)
+      }
+    )
+  })
+}
+
+const getProfileByTelegramHashDb = hash => {
+  return new Promise((resolve, reject) => {
+    Profile
+      .findOne({hash})
+      .exec(
+        (err, Profile) => {
+          if (err) {
+            reject(err)
+          }
+          resolve(Profile)
+        }
+      )
+  })
+}
+
+const updateQuestionDb = Question => {
+  return new Promise((resolve, reject) => {
+    Question.save(
+      (err, Question) => {
+        if (err) {
+          reject(Error(err))
+        }
+        resolve(Question)
       }
     )
   })

@@ -1603,6 +1603,10 @@ node-pre-gyp@^0.6.39:
     tar "^2.2.1"
     tar-pack "^3.4.0"
 
+node-telegram-login@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/node-telegram-login/-/node-telegram-login-1.0.0.tgz#b2a1ca4da6d49857392a58887b4e04ac25f97a3b"
+
 nodemon@^1.17.3:
   version "1.17.3"
   resolved "https://registry.yarnpkg.com/nodemon/-/nodemon-1.17.3.tgz#3b0bbc2ee05ccb43b1aef15ba05c63c7bc9b8530"

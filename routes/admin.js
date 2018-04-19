@@ -4,6 +4,6 @@ const router = express.Router()
 const QuestionHandler = require('../controllers/questions')
 
 /* POST questions. */
-router.post('/questions', QuestionHandler.addQuestion)
+router.put('/', QuestionHandler.updateQuestion)
 
 module.exports = router

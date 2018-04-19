@@ -7,7 +7,10 @@ const QuestionSchema = new Schema({
   created_at: {
     type: Date,
     default: Date.now
-  }
+  },
+  valid: Boolean,
+  ip: String,
+  address: String
 })
 
 module.exports = mongoose.model('Question', QuestionSchema)
