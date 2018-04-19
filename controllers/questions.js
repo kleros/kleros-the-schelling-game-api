@@ -19,10 +19,8 @@ exports.updateQuestion = async (req, res) => {
   updateQuestion.proposals = updateQuestion.proposals[0].split(',')
 
   const questionUpdated = Object.assign(questionDb, updateQuestion)
-
-  const questionUpdatedDb = await updateQuestionDb(questionUpdated)
-
-  return res.status(201).json(questionUpdatedDb)
+  
+  return res.status(201).json(await updateQuestionDb(questionUpdated))
 }
 
 exports.addQuestion = async (req, res) => {

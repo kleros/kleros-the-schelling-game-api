@@ -20,7 +20,11 @@ const ProfileSchema = new Schema({
   hash: String,
   first_name: String,
   photo_url: String,
-  auth_date: Number
+  auth_date: Number,
+  amount: {
+    type: Number,
+    default: 42
+  }
 })
 
 module.exports = mongoose.model('Profile', ProfileSchema)

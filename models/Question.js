@@ -10,7 +10,8 @@ const QuestionSchema = new Schema({
   },
   valid: Boolean,
   ip: String,
-  address: String
+  address: String,
+  winners: [String]
 })
 
 module.exports = mongoose.model('Question', QuestionSchema)

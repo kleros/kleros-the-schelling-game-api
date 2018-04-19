@@ -1,7 +1,9 @@
 const _ = require('lodash')
+const mongoose = require('mongoose')
 
 const Vote = require('../models/Vote')
 const Profile = require('../models/Profile')
+const Question = require('../models/Question')
 
 exports.addVote = async (req, res) => {
   let result = 'loose'
@@ -68,10 +70,20 @@ exports.addVote = async (req, res) => {
     ProfileInstance.startVoteTime = new Date()
   }
 
+  const question = await getQuestionDb(newVote.questionId)
+
   if (newVote.voteId === proposalWins) {
     result = 'win'
     ProfileInstance.score = ProfileInstance.score + 1
+    if (question.winners.indexOf(ProfileInstance._id) === -1) {
+      question.winners.push(ProfileInstance._id)
+    }
   } else {
+    if (question.winners.indexOf(ProfileInstance._id) > -1) {
+      const index = question.winners.indexOf(ProfileInstance._id)
+      question.winners.splice(index, 1)
+    }
+
     ProfileInstance.questions = []
     ProfileInstance.votes = []
     ProfileInstance.session = ProfileInstance.session + 1
@@ -82,7 +94,18 @@ exports.addVote = async (req, res) => {
     }
 
     ProfileInstance.score = 0
+
+    --ProfileInstance.amount
+
+    const countWinners = question.winners.length
+    question.winners.map(async winnerId => {
+      const winner = await getProfileByIdDb(winnerId)
+      winner.amount += 1 / countWinners
+      await updateProfileDb(winner)
+    })
   }
+
+  await updateQuestionDb(question)
 
   await updateProfileDb(ProfileInstance)
 
@@ -93,7 +116,8 @@ exports.addVote = async (req, res) => {
     lastVoteTime: ProfileInstance.lastVoteTime,
     startVoteTime: ProfileInstance.startVoteTime,
     bestScore: ProfileInstance.best_score,
-    bestScoreTimestamp: ProfileInstance.best_score_timestamp
+    bestScoreTimestamp: ProfileInstance.best_score_timestamp,
+    amount: ProfileInstance.amount
   })
 }
 
@@ -148,5 +172,48 @@ const getProfileByTelegramHashDb = hash => {
           resolve(Profile)
         }
       )
+  })
+}
+
+const getQuestionDb = id => {
+  return new Promise((resolve, reject) => {
+    Question
+      .findOne(
+        {_id: mongoose.Types.ObjectId(id)},
+        (err, Question) => {
+          if (err) {
+            reject(err)
+          }
+          resolve(Question)
+        }
+      )
+  })
+}
+
+const getProfileByIdDb = id => {
+  return new Promise((resolve, reject) => {
+    Profile
+      .findOne({_id: mongoose.Types.ObjectId(id)})
+      .exec(
+        (err, Profile) => {
+          if (err) {
+            reject(err)
+          }
+          resolve(Profile)
+        }
+      )
+  })
+}
+
+const updateQuestionDb = Question => {
+  return new Promise((resolve, reject) => {
+    Question.save(
+      (err, Question) => {
+        if (err) {
+          reject(Error(err))
+        }
+        resolve(Question)
+      }
+    )
   })
 }
