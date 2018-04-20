@@ -9,6 +9,7 @@ const getBestScoresDb = Profile => {
     Profile
       .find({})
       .sort({best_score: -1})
+      .sort({amount: -1})
       .sort({best_score_timestamp: 1})
       .exec(
         (err, Profile) => {

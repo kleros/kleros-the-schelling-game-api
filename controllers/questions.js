@@ -6,21 +6,25 @@ const Profile = require('../models/Profile')
 
 exports.updateQuestion = async (req, res) => {
   // secure this route (hash is not necessary because it's an env var)
-  if (req.body.password !== process.env.SECRET) {
+  if (req.get('password') !== process.env.SECRET) {
     return res.status(201).json({msg: 'access denied'})
   }
 
-  const questionDb = await getQuestionDb(req.body.questionId)
+  let questionDb = await getQuestionByIdDb(req.body.questionId)
 
-  let updateQuestion = new Question({
-    ...req.body
-  })
+  if (!_.isEmpty(req.body.proposals)) {
+    questionDb.proposals = req.body.proposals.split(',')
+  }
 
-  updateQuestion.proposals = updateQuestion.proposals[0].split(',')
+  if (!_.isEmpty(req.body.question)) {
+    questionDb.question = req.body.question
+  }
 
-  const questionUpdated = Object.assign(questionDb, updateQuestion)
-  
-  return res.status(201).json(await updateQuestionDb(questionUpdated))
+  if (!_.isEmpty(req.body.valid)) {
+    questionDb.valid = req.body.valid
+  }
+
+  return res.status(201).json(await updateQuestionDb(questionDb))
 }
 
 exports.addQuestion = async (req, res) => {
@@ -36,9 +40,9 @@ exports.addQuestion = async (req, res) => {
   newQuestion.ip = ip
   newQuestion.valid = false
 
-  newQuestion = await addQuestionDb(newQuestion)
-
   newQuestion.proposals = newQuestion.proposals[0].split(',')
+
+  newQuestion = await addQuestionDb(newQuestion)
 
   return res.status(201).json(newQuestion)
 }
@@ -54,7 +58,7 @@ exports.getQuestion = async (req, res) => {
 
   // 1 day in milliseconds
   if (ProfileInstance.lastVoteTime !== undefined && ProfileInstance.session >= MAX_SESSIONS_PER_DAY && Date.now() - ProfileInstance.lastVoteTime.getTime() < 24 * 3600 * 1000) {
-    return res.status(201).json({msg: 'You have made 10 sessions. Try tomorrow.'})
+    return res.status(201).json({msg: 'You made 10 sessions. Try tomorrow.'})
   }
 
   // if a questions has no answer, this question is displayed
@@ -63,7 +67,7 @@ exports.getQuestion = async (req, res) => {
       q => !ProfileInstance.votes.includes(q)
     )
 
-    const questionMustAnswer = await getQuestionDb(questionIdMustAnswer[0])
+    const questionMustAnswer = await getQuestionByIdDb(questionIdMustAnswer[0])
 
     if (_.isEmpty(questionMustAnswer)) {
       return res.status(201).json({msg: 'no question'})
@@ -72,22 +76,36 @@ exports.getQuestion = async (req, res) => {
     return res.status(201).json(questionMustAnswer)
   }
 
-  const questionsAll = await getAllQuestionsDb()
+  const questionsAll = await getAllValidQuestionsDb()
+  const questionsAllIds = [...new Set(questionsAll.map(obj => obj._id))]
 
-  const questionsAllFilter = questionsAll.filter(
-    q => !ProfileInstance.questions.includes(q)
+  const questionsAllFilter = questionsAllIds.filter(
+    q => !ProfileInstance.questions.includes(q.toString())
   )
 
   const questionId = questionsAllFilter[Math.floor(Math.random() * questionsAllFilter.length)]
 
+  if (_.isUndefined(questionId)) {
+    return res.status(201).json({msg: 'no question'})
+  }
+
   // add questions in the profile session to have not duplicate questions
-  ProfileInstance.questions.push(questionId)
+  ProfileInstance.questions.push(questionId.toString())
 
   await updateProfileDb(ProfileInstance)
 
-  const question = await getQuestionDb(questionId)
+  const question = questionsAll.filter(question => question._id.toString() === questionId.toString())
 
-  return res.status(201).json(question)
+  return res.status(201).json(question[0])
+}
+
+exports.getAllQuestions = async (req, res) => {
+  // secure this route (hash is not necessary because it's an env var)
+  if (req.get('password') !== process.env.SECRET) {
+    return res.status(201).json({msg: 'access denied'})
+  }
+
+  return res.status(201).json(await getAllQuestionsDb())
 }
 
 const addQuestionDb = Question => {
@@ -105,23 +123,24 @@ const getAllQuestionsDb = () => {
   return new Promise((resolve, reject) => {
     Question
       .find()
-      .distinct('_id')
       .exec(
-        (err, questionsIds) => {
+        (err, questions) => {
           if (err) {
             reject(err)
           }
-          resolve(questionsIds)
+          resolve(questions)
         }
       )
   })
 }
 
-const getQuestionDb = id => {
+const getQuestionByIdDb = id => {
   return new Promise((resolve, reject) => {
     Question
       .findOne(
-        {_id: mongoose.Types.ObjectId(id)},
+        {
+          _id: mongoose.Types.ObjectId(id)
+        },
         (err, Question) => {
           if (err) {
             reject(err)
@@ -170,5 +189,20 @@ const updateQuestionDb = Question => {
         resolve(Question)
       }
     )
+  })
+}
+
+const getAllValidQuestionsDb = () => {
+  return new Promise((resolve, reject) => {
+    Question
+      .find(
+        {valid: true},
+        (err, questions) => {
+          if (err) {
+            reject(err)
+          }
+          resolve(questions)
+        }
+      )
   })
 }

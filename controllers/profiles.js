@@ -1,8 +1,25 @@
 const _ = require('lodash')
+const { createHash, createHmac } = require('crypto')
+
+const TOKEN = '598944486:AAHzXWwBVcxwHAo9tIQHFfv68v07Vt2oxEk'
+const secret = createHash('sha256')
+  .update(TOKEN)
+  .digest()
 
 const Profile = require('../models/Profile')
 
 exports.addProfile = async (req, res) => {
+  if (!checkSignature({
+    hash: req.body.hash,
+    username: req.body.username,
+    id: req.body.id,
+    first_name: req.body.first_name,
+    last_name: req.body.last_name,
+    photo_url: req.body.photo_url,
+    auth_date: req.body.auth_date })) {
+    return res.status(403).json({msg: 'Access denied'})
+  }
+
   let ProfileInstance = await getProfileByTelegramHashDb(req.body.hash)
 
   if (_.isNull(ProfileInstance)) {
@@ -56,4 +73,15 @@ const getProfileByTelegramHashDb = hash => {
         }
       )
   })
+}
+
+const checkSignature = ({ hash, ...data }) => {
+  const checkString = Object.keys(data)
+    .sort()
+    .map(k => (`${k}=${data[k]}`))
+    .join('\n')
+  const hmac = createHmac('sha256', secret)
+    .update(checkString)
+    .digest('hex')
+  return hmac === hash
 }
