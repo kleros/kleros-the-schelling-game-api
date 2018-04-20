@@ -72,9 +72,12 @@ exports.addVote = async (req, res) => {
 
   const question = await getQuestionDb(newVote.questionId)
 
-  if (ProfileInstance.score > ProfileInstance.best_score) {
+  if (ProfileInstance.score >= ProfileInstance.best_score) {
     ProfileInstance.best_score = ProfileInstance.score
-    ProfileInstance.best_score_timestamp = ProfileInstance.lastVoteTime.getTime() - ProfileInstance.startVoteTime.getTime()
+    const timeBestScore = ProfileInstance.lastVoteTime.getTime() - ProfileInstance.startVoteTime.getTime()
+    if (timeBestScore < ProfileInstance.best_score_timestamp) {
+      ProfileInstance.best_score_timestamp = timeBestScore
+    }
   }
 
   if (newVote.voteId === proposalWins) {

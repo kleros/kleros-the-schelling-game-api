@@ -73,6 +73,9 @@ exports.getQuestion = async (req, res) => {
       return res.status(201).json({msg: 'no question'})
     }
 
+    // remove `winners` key
+    questionMustAnswer.winners = undefined
+
     return res.status(201).json(questionMustAnswer)
   }
 
@@ -86,7 +89,7 @@ exports.getQuestion = async (req, res) => {
   const questionId = questionsAllFilter[Math.floor(Math.random() * questionsAllFilter.length)]
 
   if (_.isUndefined(questionId)) {
-    return res.status(201).json({msg: 'no question'})
+    return res.status(201).json({msg: 'You have answered all the questions. You can try tomorrow or add new question.'})
   }
 
   // add questions in the profile session to have not duplicate questions
@@ -95,6 +98,9 @@ exports.getQuestion = async (req, res) => {
   await updateProfileDb(ProfileInstance)
 
   const question = questionsAll.filter(question => question._id.toString() === questionId.toString())
+
+  // remove `winners` key
+  question[0].winners = undefined
 
   return res.status(201).json(question[0])
 }
