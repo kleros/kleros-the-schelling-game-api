@@ -170,6 +170,8 @@ Set database in `config.js`.
 
 ## Set https
 
+If necessary, change domain name (for example on *digital ocean*).
+
 ```
 # Install tools that Let’s Encrypt requires
 sudo apt-get install bc
@@ -179,12 +181,11 @@ sudo apt-get install letsencrypt
 
 sudo letsencrypt certonly
 
-dig +short kleros-store.com
+dig +short gamedrop.io
 # output should be your droplet’s IP address, e.g. 138.68.11.65
 
 # Update the SSL certificate
-sudo letsencrypt certonly --standalone -d
-
+sudo letsencrypt certonly --standalone -d gamedrop.io
 ```
 
 ## Api documentation

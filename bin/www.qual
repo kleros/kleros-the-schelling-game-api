@@ -4,22 +4,32 @@
  * Module dependencies.
  */
 
-var app = require('../app')
-var debug = require('debug')('the-schelling-game:server')
-var http = require('http')
+const app = require('../app')
+const debug = require('debug')('backend:server')
+const http = require('http')
+const fs = require('fs')
+const https = require('https')
+
+const constants = require('../constants')
+
+const options = {
+  cert: fs.readFileSync(constants.tls.FULLCHAIN_PEM_QUALIFICATION),
+  key: fs.readFileSync(constants.tls.PRIVKEY_PEM_QUALIFICATION)
+}
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000')
+var port = normalizePort(process.env.PORT || '443')
 app.set('port', port)
 
 /**
  * Create HTTP server.
  */
 
-var server = http.createServer(app)
+// server = http.createServer(app)
+var server = https.createServer(options, app)
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -33,7 +43,7 @@ server.on('listening', onListening)
  * Normalize a port into a number, string, or false.
  */
 
-function normalizePort(val) {
+function normalizePort (val) {
   var port = parseInt(val, 10)
 
   if (isNaN(port)) {
