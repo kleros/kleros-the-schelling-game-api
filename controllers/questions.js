@@ -4,6 +4,9 @@ const mongoose = require('mongoose')
 const Question = require('../models/Question')
 const Profile = require('../models/Profile')
 
+// load enviornment variables
+require('dotenv').config()
+
 exports.updateQuestion = async (req, res) => {
   // secure this route (hash is not necessary because it's an env var)
   if (req.get('password') !== process.env.SECRET) {

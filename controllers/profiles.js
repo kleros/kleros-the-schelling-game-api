@@ -1,8 +1,11 @@
 const _ = require('lodash')
 const { createHash, createHmac } = require('crypto')
 
+// load enviornment variables
+require('dotenv').config()
+
 const secret = createHash('sha256')
-  .update(process.env.TOKEN)
+  .update(process.env.TOKEN_TELEGRAM)
   .digest()
 
 const Profile = require('../models/Profile')
