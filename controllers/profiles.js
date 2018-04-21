@@ -1,9 +1,8 @@
 const _ = require('lodash')
 const { createHash, createHmac } = require('crypto')
 
-const TOKEN = '598944486:AAHzXWwBVcxwHAo9tIQHFfv68v07Vt2oxEk'
 const secret = createHash('sha256')
-  .update(TOKEN)
+  .update(process.env.TOKEN)
   .digest()
 
 const Profile = require('../models/Profile')
@@ -20,10 +19,10 @@ exports.addProfile = async (req, res) => {
     return res.status(403).json({msg: 'Access denied'})
   }
 
-  let ProfileInstance = await getProfileByTelegramHashDb(req.body.hash)
+  const ProfileInstance = await getProfileBytelegramIdDb(req.body.id)
 
-  if (_.isNull(ProfileInstance)) {
-    ProfileInstance = new Profile(
+  if (_.isEmpty(ProfileInstance)) {
+    const ProfileInstanceTotal = new Profile(
       {
         session: 0,
         score: 0,
@@ -38,13 +37,13 @@ exports.addProfile = async (req, res) => {
         hash: req.body.hash
       }
     )
+
+    addProfileDb(ProfileInstanceTotal)
+
+    return res.status(201).json(ProfileInstanceTotal)
   } else {
     return res.status(201).json({msg: 'User already exists'})
   }
-
-  await addProfileDb(ProfileInstance)
-
-  return res.status(201).json(ProfileInstance)
 }
 
 const addProfileDb = Profile => {
@@ -60,10 +59,10 @@ const addProfileDb = Profile => {
   })
 }
 
-const getProfileByTelegramHashDb = hash => {
+const getProfileBytelegramIdDb = telegramId => {
   return new Promise((resolve, reject) => {
     Profile
-      .findOne({hash})
+      .findOne({telegram_id: telegramId})
       .exec(
         (err, Profile) => {
           if (err) {

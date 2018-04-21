@@ -15,8 +15,14 @@ const ProfileSchema = new Schema({
   best_score_timestamp: Number,
   lastVoteTime: Date,
   startVoteTime: Date,
-  username: String,
-  telegram_id: String,
+  username: {
+    type: String,
+    unique: true
+  },
+  telegram_id: {
+    type: String,
+    unique: true
+  },
   hash: String,
   first_name: String,
   photo_url: String,

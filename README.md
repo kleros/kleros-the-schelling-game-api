@@ -80,7 +80,7 @@ db.questions.insert({"q":"What is the speakers", p:"Vitalik", "Vlad", "John McAf
 
 Create `.env` file in the root directory with these keys:
 ```
-MAX_SESSIONS_PER_DAY=10
+TOKEN=<token>
 SECRET={secure secret e.g. dontusethisasyoursecret}
 DB_URI={uri of mongo instance e.g. mongodb://localhost/the-schelling-game}
 IPS_ALLOWED={add a comma separated list with no spaces of ips to allow e.g. ::1,127.0.0.1}
