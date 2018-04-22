@@ -45,7 +45,7 @@ exports.addProfile = async (req, res) => {
 
     return res.status(201).json(ProfileInstanceTotal)
   } else {
-    return res.status(201).json({msg: 'User already exists'})
+    return res.status(200).json(ProfileInstance)
   }
 }
 
