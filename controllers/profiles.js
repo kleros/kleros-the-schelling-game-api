@@ -45,6 +45,12 @@ exports.addProfile = async (req, res) => {
 
     return res.status(201).json(ProfileInstanceTotal)
   } else {
+    if (ProfileInstance.session !== 0 && Date.now() - ProfileInstance.lastVoteTime.getTime() > 24 * 3600 * 1000) {
+      ProfileInstance.session = 0
+    }
+
+    await updateProfileDb(ProfileInstance)
+
     return res.status(200).json(ProfileInstance)
   }
 }
@@ -86,4 +92,17 @@ const checkSignature = ({ hash, ...data }) => {
     .update(checkString)
     .digest('hex')
   return hmac === hash
+}
+
+const updateProfileDb = Profile => {
+  return new Promise((resolve, reject) => {
+    Profile.save(
+      (err, Profile) => {
+        if (err) {
+          reject(Error(err))
+        }
+        resolve(Profile)
+      }
+    )
+  })
 }
