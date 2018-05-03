@@ -85,11 +85,17 @@ exports.getQuestion = async (req, res) => {
   const questionsAll = await getAllValidQuestionsDb()
   const questionsAllIds = [...new Set(questionsAll.map(obj => obj._id))]
 
-  const questionsAllFilter = questionsAllIds.filter(
-    q => !ProfileInstance.questions.includes(q.toString())
-  )
+  let questionId
 
-  const questionId = questionsAllFilter[Math.floor(Math.random() * questionsAllFilter.length)]
+  if (ProfileInstance.questions.length !== 0) {
+    const questionsAllFilter = questionsAllIds.filter(
+      q => !ProfileInstance.questions.includes(q.toString())
+    )
+
+    questionId = questionsAllFilter[Math.floor(Math.random() * questionsAllFilter.length)]
+  } else {
+    questionId = questionsAllIds[Math.floor(Math.random() * questionsAllIds.length)]
+  }
 
   if (_.isUndefined(questionId)) {
     return res.status(201).json({msg: 'You have answered all the questions. You can try tomorrow or add new question.'})
