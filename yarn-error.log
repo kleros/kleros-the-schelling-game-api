@@ -1,14 +1,14 @@
 Arguments: 
-  /usr/local/Cellar/node/9.3.0_1/bin/node /usr/local/bin/yarn run lint:js
+  /usr/local/Cellar/node/9.11.1/bin/node /Users/n1c0/.yarn/bin/yarn.js start
 
 PATH: 
-  /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/dotnet:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/Library/TeX/texbin:/Applications/Xamarin Workbooks.app/Contents/SharedSupport/path-bin
+  /Users/n1c0/.yarn/bin:/Users/n1c0/.config/yarn/global/node_modules/.bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/dotnet:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/Library/TeX/texbin:/Applications/Xamarin Workbooks.app/Contents/SharedSupport/path-bin
 
 Yarn version: 
-  1.4.0
+  1.5.1
 
 Node version: 
-  9.3.0
+  9.11.1
 
 Platform: 
   darwin x64
@@ -29,6 +29,7 @@ npm manifest:
       "body-parser": "^1.18.2",
       "colors": "^1.2.1",
       "cookie-parser": "~1.4.3",
+      "crypto": "^1.0.1",
       "debug": "~2.6.9",
       "dotenv": "^5.0.1",
       "express": "~4.16.0",
@@ -38,7 +39,6 @@ npm manifest:
       "lodash": "^4.17.5",
       "mongoose": "^5.0.13",
       "morgan": "~1.9.0",
-      "node-telegram-login": "^1.0.0",
       "nodemon": "^1.17.3",
       "pug": "2.0.0-beta11"
     }
@@ -577,6 +577,10 @@ Lockfile:
   crypto-random-string@^1.0.0:
     version "1.0.0"
     resolved "https://registry.yarnpkg.com/crypto-random-string/-/crypto-random-string-1.0.0.tgz#a230f64f568310e1498009940790ec99545bca7e"
+  
+  crypto@^1.0.1:
+    version "1.0.1"
+    resolved "https://registry.yarnpkg.com/crypto/-/crypto-1.0.1.tgz#2af1b7cad8175d24c8a1b0778255794a21803037"
   
   dashdash@^1.12.0:
     version "1.14.1"
@@ -1653,10 +1657,6 @@ Lockfile:
       tar "^2.2.1"
       tar-pack "^3.4.0"
   
-  node-telegram-login@^1.0.0:
-    version "1.0.0"
-    resolved "https://registry.yarnpkg.com/node-telegram-login/-/node-telegram-login-1.0.0.tgz#b2a1ca4da6d49857392a58887b4e04ac25f97a3b"
-  
   nodemon@^1.17.3:
     version "1.17.3"
     resolved "https://registry.yarnpkg.com/nodemon/-/nodemon-1.17.3.tgz#3b0bbc2ee05ccb43b1aef15ba05c63c7bc9b8530"
@@ -2659,14 +2659,16 @@ Lockfile:
       window-size "0.1.0"
 
 Trace: 
-  Error: Command "lint:js" not found.
-      at new MessageError (/usr/local/lib/node_modules/yarn/lib/cli.js:186:110)
-      at /usr/local/lib/node_modules/yarn/lib/cli.js:86874:17
-      at Generator.next (<anonymous>)
-      at step (/usr/local/lib/node_modules/yarn/lib/cli.js:98:30)
-      at /usr/local/lib/node_modules/yarn/lib/cli.js:116:14
-      at new Promise (<anonymous>)
-      at new F (/usr/local/lib/node_modules/yarn/lib/cli.js:23457:28)
-      at /usr/local/lib/node_modules/yarn/lib/cli.js:95:12
-      at runCommand (/usr/local/lib/node_modules/yarn/lib/cli.js:86879:22)
-      at Object.<anonymous> (/usr/local/lib/node_modules/yarn/lib/cli.js:86979:14)
+  Error: Command failed.
+  Exit code: 127
+  Command: sh
+  Arguments: -c pm2 start bin/www --name kleros-the-schelling-game
+  Directory: /private/tmp/kleros-the-schelling-game-api
+  Output:
+  
+      at ProcessTermError.MessageError (/Users/n1c0/.yarn/lib/cli.js:186:110)
+      at new ProcessTermError (/Users/n1c0/.yarn/lib/cli.js:226:113)
+      at ChildProcess.<anonymous> (/Users/n1c0/.yarn/lib/cli.js:30281:17)
+      at ChildProcess.emit (events.js:180:13)
+      at maybeClose (internal/child_process.js:936:16)
+      at Process.ChildProcess._handle.onexit (internal/child_process.js:220:5)

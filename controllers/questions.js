@@ -57,13 +57,6 @@ exports.getQuestion = async (req, res) => {
     return res.status(201).json({msg: 'User is not login'})
   }
 
-  const MAX_SESSIONS_PER_DAY = process.env.MAX_SESSIONS_PER_DAY ? process.env.MAX_SESSIONS_PER_DAY : 10
-
-  // 1 day in milliseconds
-  if (ProfileInstance.lastVoteTime !== undefined && ProfileInstance.session >= MAX_SESSIONS_PER_DAY && Date.now() - ProfileInstance.lastVoteTime.getTime() < 24 * 3600 * 1000) {
-    return res.status(201).json({msg: 'You made 10 sessions. Try tomorrow.'})
-  }
-
   // if a questions has no answer, this question is displayed
   if (ProfileInstance.questions.length !== ProfileInstance.votes.length) {
     const questionIdMustAnswer = ProfileInstance.questions.filter(

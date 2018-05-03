@@ -92,8 +92,6 @@ exports.addVote = async (req, res) => {
       question.winners.splice(index, 1)
     }
 
-    ProfileInstance.questions = []
-    ProfileInstance.votes = []
     ProfileInstance.session = ProfileInstance.session + 1
 
     ProfileInstance.score = 0
