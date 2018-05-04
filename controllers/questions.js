@@ -8,6 +8,7 @@ const Profile = require('../models/Profile')
 require('dotenv').config()
 
 exports.updateQuestion = async (req, res) => {
+
   // secure this route (hash is not necessary because it's an env var)
   if (req.get('password') !== process.env.SECRET) {
     return res.status(201).json({msg: 'access denied'})
@@ -23,11 +24,13 @@ exports.updateQuestion = async (req, res) => {
     questionDb.question = req.body.question
   }
 
-  if (!_.isEmpty(req.body.valid)) {
+  if (req.body.valid !== undefined) {
     questionDb.valid = req.body.valid
   }
 
-  return res.status(201).json(await updateQuestionDb(questionDb))
+  await updateQuestionDb(questionDb)
+
+  return res.status(201).json(await getAllQuestionsDb())
 }
 
 exports.addQuestion = async (req, res) => {
