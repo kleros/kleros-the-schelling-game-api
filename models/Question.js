@@ -11,6 +11,7 @@ const QuestionSchema = new Schema({
   valid: Boolean,
   ip: String,
   address: String,
+  username: String,
   winners: [String]
 })
 

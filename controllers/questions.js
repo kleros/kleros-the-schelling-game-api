@@ -25,6 +25,18 @@ exports.updateQuestion = async (req, res) => {
 
   if (req.body.valid !== undefined) {
     questionDb.valid = req.body.valid
+
+    if (questionDb.username) {
+      console.log('wefwefewfew')
+      const profile = await getProfileByUsernameDb(questionDb.username)
+
+      if (req.body.valid) {
+        ++profile.amount
+      } else {
+        --profile.amount
+      }
+      await updateProfileDb(profile)
+    }
   }
 
   await updateQuestionDb(questionDb)
@@ -178,6 +190,21 @@ const getProfileByTelegramHashDb = hash => {
   return new Promise((resolve, reject) => {
     Profile
       .findOne({hash})
+      .exec(
+        (err, Profile) => {
+          if (err) {
+            reject(err)
+          }
+          resolve(Profile)
+        }
+      )
+  })
+}
+
+const getProfileByUsernameDb = username => {
+  return new Promise((resolve, reject) => {
+    Profile
+      .findOne({username})
       .exec(
         (err, Profile) => {
           if (err) {

@@ -19,7 +19,7 @@ exports.addProfile = async (req, res) => {
     last_name: req.body.last_name,
     photo_url: req.body.photo_url,
     auth_date: req.body.auth_date })) {
-    return res.status(403).json({msg: 'Access denied'})
+    //return res.status(403).json({msg: 'Access denied'})
   }
 
   const ProfileInstance = await getProfileBytelegramIdDb(req.body.id)
