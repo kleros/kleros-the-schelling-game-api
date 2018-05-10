@@ -1,28 +1,33 @@
+const fetch = require('node-fetch')
+const sha3 = require('js-sha3').keccak256
 const _ = require('lodash')
-const { createHash, createHmac } = require('crypto')
 
 // load enviornment variables
 require('dotenv').config()
 
-const secret = createHash('sha256')
-  .update(process.env.TOKEN_TELEGRAM)
-  .digest()
-
 const Profile = require('../models/Profile')
 
 exports.addProfile = async (req, res) => {
-  if (!checkSignature({
-    hash: req.body.hash,
-    username: req.body.username,
-    id: req.body.id,
-    first_name: req.body.first_name,
-    last_name: req.body.last_name,
-    photo_url: req.body.photo_url,
-    auth_date: req.body.auth_date })) {
-    return res.status(403).json({msg: 'Access denied'})
+  const address = req.body.address
+
+  const balanceJson = await fetch(`https://mainnet.infura.io?token=${process.env.TOKEN_INFURA}`, {
+    method: 'POST',
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      method: 'eth_getBalance',
+      params: [address, 'latest'],
+      id: 1
+    }), // stringify JSON
+    headers: {'Content-Type': 'application/json'}
+  })
+    .then(res => res.json())
+    .then(res => res)
+
+  if (!isAddress(address) || (parseInt(balanceJson.result / 1000000000000000000) < 1)) {
+    return res.status(403).json({msg: 'Access denied. Your address must a balance at least 1 eth'})
   }
 
-  const ProfileInstance = await getProfileBytelegramIdDb(req.body.id)
+  const ProfileInstance = await getProfileBytelegramIdDb(req.body.address)
 
   if (_.isEmpty(ProfileInstance)) {
     const ProfileInstanceTotal = new Profile(
@@ -32,12 +37,7 @@ exports.addProfile = async (req, res) => {
         best_score: 0,
         best_score_timestamp: 0,
         startVoteTime: new Date(),
-        username: req.body.username,
-        telegram_id: req.body.id,
-        photo_url: req.body.photo_url,
-        auth_date: req.body.auth_date,
-        first_name: req.body.first_name,
-        hash: req.body.hash
+        address: req.body.address,
       }
     )
 
@@ -45,13 +45,11 @@ exports.addProfile = async (req, res) => {
 
     return res.status(201).json(ProfileInstanceTotal)
   } else {
-    if (ProfileInstance.lastVoteTime && Date.now() - ProfileInstance.lastVoteTime.getTime() > 24 * 3600 * 1000) {
+    if (ProfileInstance.lastVoteTime && Date.now() - ProfileInstance.lastVoteTime.getTime() > 3600 * 1000) { // 1 hour
       ProfileInstance.session = 0
       ProfileInstance.questions = []
       ProfileInstance.votes = []
     }
-
-    ProfileInstance.hash = req.body.hash
 
     await updateProfileDb(ProfileInstance)
 
@@ -87,17 +85,6 @@ const getProfileBytelegramIdDb = telegramId => {
   })
 }
 
-const checkSignature = ({ hash, ...data }) => {
-  const checkString = Object.keys(data)
-    .sort()
-    .map(k => (`${k}=${data[k]}`))
-    .join('\n')
-  const hmac = createHmac('sha256', secret)
-    .update(checkString)
-    .digest('hex')
-  return hmac === hash
-}
-
 const updateProfileDb = Profile => {
   return new Promise((resolve, reject) => {
     Profile.save(
@@ -109,4 +96,27 @@ const updateProfileDb = Profile => {
       }
     )
   })
+}
+
+const isAddress =  address => {
+  if (!/^(0x)?[0-9a-f]{40}$/i.test(address)) {
+    return false
+  } else if (/^(0x)?[0-9a-f]{40}$/.test(address) || /^(0x)?[0-9A-F]{40}$/.test(address)) {
+    return true
+  } else {
+    return isChecksumAddress(address)
+  }
+}
+
+const isChecksumAddress = address => {
+  // Check each case
+  address = address.replace('0x', '')
+  const addressHash = sha3(address.toLowerCase())
+  for (let i = 0; i < 40; i++) {
+    // the nth letter should be uppercase if the nth digit of casemap is 1
+    if ((parseInt(addressHash[i], 16) > 7 && address[i].toUpperCase() !== address[i]) || (parseInt(addressHash[i], 16) <= 7 && address[i].toLowerCase() !== address[i])) {
+      return false
+    }
+  }
+  return true
 }
