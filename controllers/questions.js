@@ -27,7 +27,6 @@ exports.updateQuestion = async (req, res) => {
     questionDb.valid = req.body.valid
 
     if (questionDb.username) {
-      console.log('wefwefewfew')
       const profile = await getProfileByUsernameDb(questionDb.username)
 
       if (req.body.valid) {
@@ -65,10 +64,10 @@ exports.addQuestion = async (req, res) => {
 }
 
 exports.getQuestion = async (req, res) => {
-  let ProfileInstance = await getProfileByTelegramHashDb(req.params.hash)
+  let ProfileInstance = await getProfileBySignMsgDb(req.params.signMsg)
 
   if (_.isNull(ProfileInstance)) {
-    return res.status(201).json({msg: 'User is not login'})
+    return res.status(201).json({msg: 'User with this message signature is not registered'})
   }
 
   // if a questions has no answer, this question is displayed
@@ -186,10 +185,10 @@ const updateProfileDb = Profile => {
   })
 }
 
-const getProfileByTelegramHashDb = hash => {
+const getProfileBySignMsgDb = signMsg => {
   return new Promise((resolve, reject) => {
     Profile
-      .findOne({hash})
+      .findOne({sign_msg: signMsg})
       .exec(
         (err, Profile) => {
           if (err) {

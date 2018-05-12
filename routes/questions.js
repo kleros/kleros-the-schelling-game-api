@@ -5,7 +5,7 @@ const QuestionHandler = require('../controllers/questions')
 const VoteHandler = require('../controllers/votes')
 
 /* GET question. With hash of the user */
-router.get('/:hash', QuestionHandler.getQuestion)
+router.get('/:signMsg', QuestionHandler.getQuestion)
 
 /* POST votes. */
 router.post('/:questionId/votes/:voteId', VoteHandler.addVote)

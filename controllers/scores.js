@@ -7,7 +7,7 @@ exports.getBestScores = async (req, res) => {
 const getBestScoresDb = Profile => {
   return new Promise((resolve, reject) => {
     Profile
-      .find({})
+      .find({}, {sign_msg: 0})
       .sort({best_score: -1})
       .sort({amount: -1})
       .sort({best_score_timestamp: 1})

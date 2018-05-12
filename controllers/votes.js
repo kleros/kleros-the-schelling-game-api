@@ -12,7 +12,7 @@ exports.addVote = async (req, res) => {
     ...req.body
   }))
 
-  let ProfileInstance = await getProfileByTelegramHashDb(req.body.hash)
+  let ProfileInstance = await getProfileBySignMsgDb(req.body.signMsg)
 
   if (_.isNull(ProfileInstance)) {
     return res.status(201).json({msg: 'User is not login'})
@@ -99,11 +99,15 @@ exports.addVote = async (req, res) => {
     --ProfileInstance.amount
 
     const countWinners = question.winners.length
-    question.winners.map(async winnerId => {
-      const winner = await getProfileByIdDb(winnerId)
-      winner.amount += 1 / countWinners
-      await updateProfileDb(winner)
-    })
+    if (question.winners.length > 0) {
+      question.winners.map(async winnerId => {
+        const winner = await getProfileByIdDb(winnerId)
+        if (winner) {
+          winner.amount += 1 / countWinners
+          await updateProfileDb(winner)
+        }
+      })
+    }
   }
 
   await updateQuestionDb(question)
@@ -161,10 +165,10 @@ const countVotesByQuestionAndVoteDb = (questionId, voteId) => {
   })
 }
 
-const getProfileByTelegramHashDb = hash => {
+const getProfileBySignMsgDb = signMsg => {
   return new Promise((resolve, reject) => {
     Profile
-      .findOne({hash})
+      .findOne({sign_msg: signMsg})
       .exec(
         (err, Profile) => {
           if (err) {

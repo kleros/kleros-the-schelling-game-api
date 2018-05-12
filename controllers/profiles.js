@@ -1,6 +1,7 @@
 const fetch = require('node-fetch')
 const sha3 = require('js-sha3').keccak256
 const _ = require('lodash')
+const ethereumJsUtil = require('ethereumjs-util')
 
 // load enviornment variables
 require('dotenv').config()
@@ -8,7 +9,8 @@ require('dotenv').config()
 const Profile = require('../models/Profile')
 
 exports.addProfile = async (req, res) => {
-  const address = req.body.address
+  const address = req.body.address.toLowerCase()
+  const signMsg = req.body.signMsg
 
   const balanceJson = await fetch(`https://mainnet.infura.io?token=${process.env.TOKEN_INFURA}`, {
     method: 'POST',
@@ -23,13 +25,29 @@ exports.addProfile = async (req, res) => {
     .then(res => res.json())
     .then(res => res)
 
-  if (!isAddress(address) || (parseInt(balanceJson.result / 1000000000000000000) < 1)) {
-    return res.status(403).json({msg: 'Access denied. Your address must a balance at least 1 eth'})
+  const msg = 'Shelling_Game + @kleros_io + YOU = <3'
+
+  const msgBuffer = ethereumJsUtil.toBuffer(msg)
+  const msgHash = ethereumJsUtil.hashPersonalMessage(msgBuffer)
+  const signatureBuffer = ethereumJsUtil.toBuffer(signMsg)
+  const signatureParams = ethereumJsUtil.fromRpcSig(signatureBuffer)
+  const publicKey = ethereumJsUtil.ecrecover(
+    msgHash,
+    signatureParams.v,
+    signatureParams.r,
+    signatureParams.s
+  )
+  const addressBuffer = ethereumJsUtil.publicToAddress(publicKey)
+  const addressMsg = ethereumJsUtil.bufferToHex(addressBuffer)
+
+  if (address !== addressMsg || !isAddress(address) || parseInt(balanceJson.result) / 1000000000000000000 < 1) {
+    return res.status(403).json({msg: 'Access denied. You must the owner of the address and your balance must have at least 1 eth'})
   }
 
-  const ProfileInstance = await getProfileBytelegramIdDb(req.body.address)
+  const ProfileInstance = await getProfileByAddressDb(addressMsg)
 
   if (_.isEmpty(ProfileInstance)) {
+    // assume the real telegram user is different than the eth address
     const ProfileInstanceTotal = new Profile(
       {
         session: 0,
@@ -37,7 +55,10 @@ exports.addProfile = async (req, res) => {
         best_score: 0,
         best_score_timestamp: 0,
         startVoteTime: new Date(),
-        address: req.body.address,
+        address: address,
+        telegram_username: `telegram-${address}`,
+        sign_msg: signMsg,
+        amount: 42
       }
     )
 
@@ -70,10 +91,10 @@ const addProfileDb = Profile => {
   })
 }
 
-const getProfileBytelegramIdDb = telegramId => {
+const getProfileByAddressDb = address => {
   return new Promise((resolve, reject) => {
     Profile
-      .findOne({telegram_id: telegramId})
+      .findOne({address})
       .exec(
         (err, Profile) => {
           if (err) {
@@ -98,7 +119,7 @@ const updateProfileDb = Profile => {
   })
 }
 
-const isAddress =  address => {
+const isAddress = address => {
   if (!/^(0x)?[0-9a-f]{40}$/i.test(address)) {
     return false
   } else if (/^(0x)?[0-9a-f]{40}$/.test(address) || /^(0x)?[0-9A-F]{40}$/.test(address)) {
