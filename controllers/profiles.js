@@ -80,6 +80,53 @@ exports.addProfile = async (req, res) => {
   }
 }
 
+exports.addTelegramProfile = async (req, res) => {
+  const address = req.body.address.toLowerCase()
+  const signMsg = req.body.signMsg
+
+  const balanceJson = await fetch(`https://mainnet.infura.io?token=${process.env.TOKEN_INFURA}`, {
+    method: 'POST',
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      method: 'eth_getBalance',
+      params: [address, 'latest'],
+      id: 1
+    }), // stringify JSON
+    headers: {'Content-Type': 'application/json'}
+  })
+    .then(res => res.json())
+    .then(res => res)
+
+  const msg = 'Shelling_Game + @kleros_io + YOU = <3'
+
+  const msgBuffer = ethereumJsUtil.toBuffer(msg)
+  const msgHash = ethereumJsUtil.hashPersonalMessage(msgBuffer)
+  const signatureBuffer = ethereumJsUtil.toBuffer(signMsg)
+  const signatureParams = ethereumJsUtil.fromRpcSig(signatureBuffer)
+  const publicKey = ethereumJsUtil.ecrecover(
+    msgHash,
+    signatureParams.v,
+    signatureParams.r,
+    signatureParams.s
+  )
+  const addressBuffer = ethereumJsUtil.publicToAddress(publicKey)
+  const addressMsg = ethereumJsUtil.bufferToHex(addressBuffer)
+
+  if (address !== addressMsg || !isAddress(address) || parseInt(balanceJson.result) / 1000000000000000000 < 1) {
+    return res.status(403).json({msg: 'Access denied. You must the owner of the address and your balance must have at least 1 eth'})
+  }
+
+  let ProfileInstance = await getProfileByAddressDb(addressMsg)
+
+  if (ProfileInstance.telegram.startsWith('telegram-')) {
+    ProfileInstance.telegram = req.body.telegram
+    ++ProfileInstance.amount
+    await updateProfileDb(ProfileInstance)
+  }
+
+  return res.status(403).json({telegram: 'added'})
+}
+
 const addProfileDb = Profile => {
   return new Promise((resolve, reject) => {
     Profile.save(
