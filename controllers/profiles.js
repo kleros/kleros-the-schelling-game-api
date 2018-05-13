@@ -70,11 +70,13 @@ exports.addProfile = async (req, res) => {
       ProfileInstance.session = 0
       ProfileInstance.questions = []
       ProfileInstance.votes = []
+
+      const ProfileInstanceUpdated = await updateProfileDb(ProfileInstance)
+
+      return res.status(200).json(ProfileInstanceUpdated)
+    } else {
+      return res.status(200).json(ProfileInstance)
     }
-
-    await updateProfileDb(ProfileInstance)
-
-    return res.status(200).json(ProfileInstance)
   }
 }
 

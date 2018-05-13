@@ -26,15 +26,14 @@ exports.updateQuestion = async (req, res) => {
   if (req.body.valid !== undefined) {
     questionDb.valid = req.body.valid
 
-    if (questionDb.username) {
-      const profile = await getProfileByUsernameDb(questionDb.username)
+    if (questionDb.address) {
+      const profile = await getProfileByAddressDb(questionDb.address)
 
       if (req.body.valid) {
         ++profile.amount
       } else {
         --profile.amount
       }
-      await updateProfileDb(profile)
     }
   }
 
@@ -200,21 +199,6 @@ const getProfileBySignMsgDb = signMsg => {
   })
 }
 
-const getProfileByUsernameDb = username => {
-  return new Promise((resolve, reject) => {
-    Profile
-      .findOne({username})
-      .exec(
-        (err, Profile) => {
-          if (err) {
-            reject(err)
-          }
-          resolve(Profile)
-        }
-      )
-  })
-}
-
 const updateQuestionDb = Question => {
   return new Promise((resolve, reject) => {
     Question.save(
@@ -238,6 +222,21 @@ const getAllValidQuestionsDb = () => {
             reject(err)
           }
           resolve(questions)
+        }
+      )
+  })
+}
+
+const getProfileByAddressDb = address => {
+  return new Promise((resolve, reject) => {
+    Profile
+      .findOne({address})
+      .exec(
+        (err, Profile) => {
+          if (err) {
+            reject(err)
+          }
+          resolve(Profile)
         }
       )
   })
