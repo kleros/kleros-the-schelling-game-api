@@ -44,7 +44,7 @@ exports.addProfile = async (req, res) => {
     return res.status(403).json({msg: 'Access denied. You must the owner of the address and your balance must have at least 1 eth'})
   }
 
-  const ProfileInstance = await getProfileByAddressDb(addressMsg)
+  const ProfileInstance = await getProfileBySignMsgDb(signMsg)
 
   if (_.isEmpty(ProfileInstance)) {
     // assume the real telegram user is different than the eth address
@@ -81,52 +81,21 @@ exports.addProfile = async (req, res) => {
 }
 
 exports.addTelegramProfile = async (req, res) => {
-  const address = req.body.address.toLowerCase()
-  const signMsg = req.body.signMsg
-
-  const balanceJson = await fetch(`https://mainnet.infura.io?token=${process.env.TOKEN_INFURA}`, {
-    method: 'POST',
-    body: JSON.stringify({
-      jsonrpc: '2.0',
-      method: 'eth_getBalance',
-      params: [address, 'latest'],
-      id: 1
-    }), // stringify JSON
-    headers: {'Content-Type': 'application/json'}
-  })
-    .then(res => res.json())
-    .then(res => res)
-
-  const msg = 'Shelling_Game + @kleros_io + YOU = <3'
-
-  const msgBuffer = ethereumJsUtil.toBuffer(msg)
-  const msgHash = ethereumJsUtil.hashPersonalMessage(msgBuffer)
-  const signatureBuffer = ethereumJsUtil.toBuffer(signMsg)
-  const signatureParams = ethereumJsUtil.fromRpcSig(signatureBuffer)
-  const publicKey = ethereumJsUtil.ecrecover(
-    msgHash,
-    signatureParams.v,
-    signatureParams.r,
-    signatureParams.s
-  )
-  const addressBuffer = ethereumJsUtil.publicToAddress(publicKey)
-  const addressMsg = ethereumJsUtil.bufferToHex(addressBuffer)
-
-  if (address !== addressMsg || !isAddress(address) || parseInt(balanceJson.result) / 1000000000000000000 < 1) {
-    return res.status(403).json({msg: 'Access denied. You must the owner of the address and your balance must have at least 1 eth'})
-  }
-
-  let ProfileInstance = await getProfileByAddressDb(addressMsg)
+  let ProfileInstance = await getProfileBySignMsgDb(req.body.signMsg)
 
   if (ProfileInstance.telegram.startsWith('telegram-')) {
     ProfileInstance.telegram = req.body.telegram
     ++ProfileInstance.amount
     const ProfileInstanceUpdated = await updateProfileDb(ProfileInstance)
 
-    return res.status(403).json(ProfileInstanceUpdated)
+    console.log('ProfileInstanceUpdated', req.body.telegram)
+
+    return res.status(201).json(ProfileInstanceUpdated)
   }
 
-  return res.status(403).json(ProfileInstance)
+  console.log('ProfileInstanceUpdated', req.body.telegram)
+
+  return res.status(200).json(ProfileInstance)
 }
 
 const addProfileDb = Profile => {
@@ -142,10 +111,10 @@ const addProfileDb = Profile => {
   })
 }
 
-const getProfileByAddressDb = address => {
+const getProfileBySignMsgDb = signMsg => {
   return new Promise((resolve, reject) => {
     Profile
-      .findOne({address})
+      .findOne({sign_msg: signMsg})
       .exec(
         (err, Profile) => {
           if (err) {
