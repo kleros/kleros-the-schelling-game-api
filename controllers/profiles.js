@@ -64,6 +64,17 @@ exports.addProfile = async (req, res) => {
 
     addProfileDb(ProfileInstanceTotal)
 
+    if (req.body.ref) {
+      const referral = await getProfileByAddressDb(req.body.ref)
+
+      if (!_.isEmpty(referral)) {
+        referral.affiliates.push(address)
+        referral.amount += 10
+
+        await updateProfileDb(referral)
+      }
+    }
+
     return res.status(201).json(ProfileInstanceTotal)
   } else {
     if (ProfileInstance.lastVoteTime && Date.now() - ProfileInstance.lastVoteTime.getTime() > 3600 * 1000) { // 1 hour
@@ -85,7 +96,7 @@ exports.addTelegramProfile = async (req, res) => {
 
   if (ProfileInstance.telegram.startsWith('telegram-')) {
     ProfileInstance.telegram = req.body.telegram
-    ++ProfileInstance.amount
+    ProfileInstance.amount += 10
     const ProfileInstanceUpdated = await updateProfileDb(ProfileInstance)
 
     console.log('ProfileInstanceUpdated', req.body.telegram)
@@ -115,6 +126,21 @@ const getProfileBySignMsgDb = signMsg => {
   return new Promise((resolve, reject) => {
     Profile
       .findOne({sign_msg: signMsg})
+      .exec(
+        (err, Profile) => {
+          if (err) {
+            reject(err)
+          }
+          resolve(Profile)
+        }
+      )
+  })
+}
+
+const getProfileByAddressDb = address => {
+  return new Promise((resolve, reject) => {
+    Profile
+      .findOne({address})
       .exec(
         (err, Profile) => {
           if (err) {

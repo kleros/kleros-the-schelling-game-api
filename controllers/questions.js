@@ -30,9 +30,9 @@ exports.updateQuestion = async (req, res) => {
       const profile = await getProfileByAddressDb(questionDb.address)
 
       if (req.body.valid) {
-        ++profile.amount
+        profile.amount += 10
       } else {
-        --profile.amount
+        profile.amount -= 10
       }
     }
   }
