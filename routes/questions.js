@@ -4,6 +4,9 @@ const router = express.Router()
 const QuestionHandler = require('../controllers/questions')
 const VoteHandler = require('../controllers/votes')
 
+/* GET all questions. */
+router.get('/count', QuestionHandler.getCountAllQuestions)
+
 /* GET question. With hash of the user */
 router.get('/:signMsg', QuestionHandler.getQuestion)
 

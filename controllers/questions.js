@@ -128,6 +128,11 @@ exports.getAllQuestions = async (req, res) => {
   return res.status(201).json(await getAllQuestionsDb())
 }
 
+exports.getCountAllQuestions = async (req, res) => {
+  const questions = await getAllValidQuestionsDb()
+  return res.status(201).json({count: questions.length})
+}
+
 const addQuestionDb = Question => {
   return new Promise((resolve, reject) => {
     Question.save((err, Question) => {
