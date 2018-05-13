@@ -56,7 +56,7 @@ exports.addProfile = async (req, res) => {
         best_score_timestamp: 0,
         startVoteTime: new Date(),
         address: address,
-        telegram_username: `telegram-${address}`,
+        telegram: `telegram-${address}`,
         sign_msg: signMsg,
         amount: 42
       }
@@ -121,10 +121,12 @@ exports.addTelegramProfile = async (req, res) => {
   if (ProfileInstance.telegram.startsWith('telegram-')) {
     ProfileInstance.telegram = req.body.telegram
     ++ProfileInstance.amount
-    await updateProfileDb(ProfileInstance)
+    const ProfileInstanceUpdated = await updateProfileDb(ProfileInstance)
+
+    return res.status(403).json(ProfileInstanceUpdated)
   }
 
-  return res.status(403).json({telegram: 'added'})
+  return res.status(403).json(ProfileInstance)
 }
 
 const addProfileDb = Profile => {

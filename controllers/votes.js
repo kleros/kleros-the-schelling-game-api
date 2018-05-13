@@ -92,8 +92,6 @@ exports.addVote = async (req, res) => {
       question.winners.splice(index, 1)
     }
 
-    ProfileInstance.session = ProfileInstance.session + 1
-
     ProfileInstance.score = 0
 
     --ProfileInstance.amount
@@ -122,7 +120,8 @@ exports.addVote = async (req, res) => {
     startVoteTime: ProfileInstance.startVoteTime,
     bestScore: ProfileInstance.best_score,
     bestScoreTimestamp: ProfileInstance.best_score_timestamp,
-    amount: ProfileInstance.amount
+    amount: ProfileInstance.amount,
+    votes: ProfileInstance.votes
   })
 }
 

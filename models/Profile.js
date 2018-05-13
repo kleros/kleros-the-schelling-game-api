@@ -15,7 +15,7 @@ const ProfileSchema = new Schema({
   best_score_timestamp: Number,
   lastVoteTime: Date,
   startVoteTime: Date,
-  telegram_username: {
+  telegram: {
     type: String,
     unique: true
   },
