@@ -17,7 +17,11 @@ const ProfileSchema = new Schema({
   startVoteTime: Date,
   telegram: {
     type: String,
-    unique: true
+    default: 'telegram-'
+  },
+  twitter: {
+    type: Boolean,
+    default: false
   },
   address: {
     type: String,

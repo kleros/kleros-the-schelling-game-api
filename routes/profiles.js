@@ -9,4 +9,7 @@ router.post('/', ProfileHandler.addProfile)
 /* ADD telegram profile. */
 router.post('/telegram', ProfileHandler.addTelegramProfile)
 
+/* ADD twitter profile. */
+router.post('/twitter', ProfileHandler.addTwitterProfile)
+
 module.exports = router
