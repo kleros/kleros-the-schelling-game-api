@@ -83,12 +83,12 @@ exports.addVote = async (req, res) => {
   if (newVote.voteId === proposalWins) {
     result = 'win'
     ProfileInstance.score = ProfileInstance.score + 1
-    if (question.winners.indexOf(ProfileInstance._id) === -1) {
-      question.winners.push(ProfileInstance._id)
+    if (question.winners.indexOf(ProfileInstance.address) === -1) {
+      question.winners.push(ProfileInstance.address)
     }
   } else {
-    if (question.winners.indexOf(ProfileInstance._id) > -1) {
-      const index = question.winners.indexOf(ProfileInstance._id)
+    if (question.winners.indexOf(ProfileInstance.address) > -1) {
+      const index = question.winners.indexOf(ProfileInstance.address)
       question.winners.splice(index, 1)
     }
 
@@ -101,7 +101,7 @@ exports.addVote = async (req, res) => {
       question.winners.map(async winnerId => {
         const winner = await getProfileByIdDb(winnerId)
         if (winner) {
-          winner.amount += 1 / countWinners
+          winner.amount = winner.amount + (1 / countWinners)
           await updateProfileDb(winner)
         }
       })
