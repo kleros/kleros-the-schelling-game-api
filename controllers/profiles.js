@@ -113,9 +113,9 @@ exports.addTwitterProfile = async (req, res) => {
     ProfileInstance.amount += 10
   }
 
-  await updateProfileDb(ProfileInstance)
+  const ProfileInstanceUpdated = await updateProfileDb(ProfileInstance)
 
-  return res.status(200).json(ProfileInstance)
+  return res.status(200).json(ProfileInstanceUpdated)
 }
 
 const addProfileDb = Profile => {
