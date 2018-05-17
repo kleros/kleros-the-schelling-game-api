@@ -107,11 +107,11 @@ exports.addTelegramProfile = async (req, res) => {
 exports.addTwitterProfile = async (req, res) => {
   let ProfileInstance = await getProfileBySignMsgDb(req.body.signMsg)
 
-  ProfileInstance.twitter = true
-
   if (!ProfileInstance.twitter) {
     ProfileInstance.amount += 10
   }
+
+  ProfileInstance.twitter = true
 
   const ProfileInstanceUpdated = await updateProfileDb(ProfileInstance)
 
