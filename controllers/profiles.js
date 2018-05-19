@@ -40,7 +40,7 @@ exports.addProfile = async (req, res) => {
   const addressBuffer = ethereumJsUtil.publicToAddress(publicKey)
   const addressMsg = ethereumJsUtil.bufferToHex(addressBuffer)
 
-  if (address !== addressMsg || !isAddress(address) || parseInt(balanceJson.result) / 1000000000000000000 < 1) {
+  if (address !== addressMsg || !isAddress(address) || parseInt(balanceJson.result) / 1000000000000000000 < 0.1) {
     return res.status(403).json({msg: 'Access denied. You must the owner of the address and your balance must have at least 1 eth'})
   }
 
