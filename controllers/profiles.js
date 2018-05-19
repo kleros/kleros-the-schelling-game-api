@@ -64,7 +64,7 @@ exports.addProfile = async (req, res) => {
     addProfileDb(ProfileInstanceTotal)
 
     if (req.body.ref) {
-      const referral = await getProfileByAddressDb(req.body.ref)
+      const referral = await getProfileByAddressDb(req.body.ref.toLowerCase())
 
       if (!_.isEmpty(referral)) {
         referral.affiliates.push(address)
