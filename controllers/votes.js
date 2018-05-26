@@ -24,105 +24,105 @@ exports.addVote = async (req, res) => {
         error: 'Maybe you need to create a question before call this entrypoint.'
       }
     )
-  }
-
-  // add votes in the profile session to have not duplicate questions
-  ProfileInstance.votes.push(newVote.questionId)
-
-  const countVote0 = await countVotesByQuestionAndVoteDb(
-    newVote.questionId,
-    0
-  )
-
-  let proposalWins = 0
-
-  // need refactoring
-  const countVote1 = await countVotesByQuestionAndVoteDb(
-    newVote.questionId,
-    1
-  )
-
-  if (countVote1 > countVote0) {
-    proposalWins = 1
-  }
-
-  const countVote2 = await countVotesByQuestionAndVoteDb(
-    newVote.questionId,
-    2
-  )
-
-  if (countVote2 > countVote1) {
-    proposalWins = 2
-  }
-
-  const countVote3 = await countVotesByQuestionAndVoteDb(
-    newVote.questionId,
-    3
-  )
-
-  if (countVote3 > countVote2) {
-    proposalWins = 3
-  }
-
-  ProfileInstance.lastVoteTime = new Date()
-
-  if (ProfileInstance.score === 0) {
-    ProfileInstance.startVoteTime = new Date()
-  }
-
-  const question = await getQuestionDb(newVote.questionId)
-
-  if (ProfileInstance.score >= ProfileInstance.best_score) {
-    ProfileInstance.best_score = ProfileInstance.score
-    const timeBestScore = ProfileInstance.lastVoteTime.getTime() - ProfileInstance.startVoteTime.getTime()
-    if (timeBestScore < ProfileInstance.best_score_timestamp) {
-      ProfileInstance.best_score_timestamp = timeBestScore
-    }
-  }
-
-  if (newVote.voteId === proposalWins) {
-    result = 'win'
-    ProfileInstance.score = ProfileInstance.score + 1
-    if (question.winners.indexOf(ProfileInstance.address) === -1) {
-      question.winners.push(ProfileInstance.address)
-    }
   } else {
-    if (question.winners.indexOf(ProfileInstance.address) > -1) {
-      const index = question.winners.indexOf(ProfileInstance.address)
-      question.winners.splice(index, 1)
+    // add votes in the profile session to have not duplicate questions
+    ProfileInstance.votes.push(newVote.questionId)
+
+    const countVote0 = await countVotesByQuestionAndVoteDb(
+      newVote.questionId,
+      0
+    )
+
+    let proposalWins = 0
+
+    // need refactoring
+    const countVote1 = await countVotesByQuestionAndVoteDb(
+      newVote.questionId,
+      1
+    )
+
+    if (countVote1 > countVote0) {
+      proposalWins = 1
     }
 
-    ProfileInstance.score = 0
+    const countVote2 = await countVotesByQuestionAndVoteDb(
+      newVote.questionId,
+      2
+    )
 
-    --ProfileInstance.amount
-
-    const countWinners = question.winners.length
-    if (question.winners.length > 0) {
-      question.winners.map(async winnerId => {
-        const winner = await getProfileByIdDb(winnerId)
-        if (winner) {
-          winner.amount = winner.amount + (1 / countWinners)
-          await updateProfileDb(winner)
-        }
-      })
+    if (countVote2 > countVote1) {
+      proposalWins = 2
     }
+
+    const countVote3 = await countVotesByQuestionAndVoteDb(
+      newVote.questionId,
+      3
+    )
+
+    if (countVote3 > countVote2) {
+      proposalWins = 3
+    }
+
+    ProfileInstance.lastVoteTime = new Date()
+
+    if (ProfileInstance.score === 0) {
+      ProfileInstance.startVoteTime = new Date()
+    }
+
+    const question = await getQuestionDb(newVote.questionId)
+
+    if (ProfileInstance.score >= ProfileInstance.best_score) {
+      ProfileInstance.best_score = ProfileInstance.score
+      const timeBestScore = ProfileInstance.lastVoteTime.getTime() - ProfileInstance.startVoteTime.getTime()
+      if (timeBestScore < ProfileInstance.best_score_timestamp) {
+        ProfileInstance.best_score_timestamp = timeBestScore
+      }
+    }
+
+    if (newVote.voteId === proposalWins) {
+      result = 'win'
+      ProfileInstance.score = ProfileInstance.score + 1
+      if (question.winners.indexOf(ProfileInstance.address) === -1) {
+        question.winners.push(ProfileInstance.address)
+      }
+    } else {
+      if (question.winners.indexOf(ProfileInstance.address) > -1) {
+        const index = question.winners.indexOf(ProfileInstance.address)
+        question.winners.splice(index, 1)
+      }
+
+      ProfileInstance.score = 0
+
+      --ProfileInstance.amount
+
+      const countWinners = question.winners.length
+      if (question.winners.length > 0) {
+        question.winners.map(async winnerId => {
+          const winner = await getProfileByIdDb(winnerId)
+          if (winner) {
+            winner.amount = winner.amount + (1 / countWinners)
+            await updateProfileDb(winner)
+          }
+        })
+      }
+    }
+
+    await updateQuestionDb(question)
+
+    await updateProfileDb(ProfileInstance)
+
+    return res.status(201).json({
+      result,
+      score: ProfileInstance.score,
+      session: ProfileInstance.session,
+      lastVoteTime: ProfileInstance.lastVoteTime,
+      startVoteTime: ProfileInstance.startVoteTime,
+      bestScore: ProfileInstance.best_score,
+      bestScoreTimestamp: ProfileInstance.best_score_timestamp,
+      amount: ProfileInstance.amount,
+      votes: ProfileInstance.votes
+    })
   }
-
-  await updateQuestionDb(question)
-
-  await updateProfileDb(ProfileInstance)
-
-  return res.status(201).json({
-    result,
-    score: ProfileInstance.score,
-    session: ProfileInstance.session,
-    lastVoteTime: ProfileInstance.lastVoteTime,
-    startVoteTime: ProfileInstance.startVoteTime,
-    bestScore: ProfileInstance.best_score,
-    bestScoreTimestamp: ProfileInstance.best_score_timestamp,
-    amount: ProfileInstance.amount,
-    votes: ProfileInstance.votes
-  })
 }
 
 const addVoteDb = Vote => {
