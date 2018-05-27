@@ -26,13 +26,21 @@ exports.updateQuestion = async (req, res) => {
   if (req.body.valid !== undefined) {
     questionDb.valid = req.body.valid
 
-    if (questionDb.address) {
-      const profile = await getProfileByAddressDb(questionDb.address)
+    
 
-      if (req.body.valid) {
-        profile.amount += 10
-      } else {
-        profile.amount -= 10
+    if (questionDb.address) {
+
+      const profile = await getProfileByAddressDb(questionDb.address.toLowerCase())
+
+      if (profile) {
+
+        if (req.body.valid) {
+          profile.amount += 10
+        } else {
+          profile.amount -= 10
+        }
+
+        await updateProfileDb(profile)
       }
     }
   }
@@ -55,6 +63,10 @@ exports.addQuestion = async (req, res) => {
   newQuestion.ip = ip
   newQuestion.valid = false
 
+  if(newQuestion.address) {
+    newQuestion.address = newQuestion.address.toLowerCase()
+  }
+
   newQuestion.proposals = newQuestion.proposals[0].split(',')
 
   newQuestion = await addQuestionDb(newQuestion)
@@ -63,6 +75,12 @@ exports.addQuestion = async (req, res) => {
 }
 
 exports.getQuestion = async (req, res) => {
+  let category = 'crypto'
+
+  if (req.query.theme === 'crypto' || req.query.theme === 'football') {
+    category = req.query.theme    
+  }
+
   let ProfileInstance = await getProfileBySignMsgDb(req.params.signMsg)
 
   if (_.isNull(ProfileInstance)) {
@@ -87,7 +105,7 @@ exports.getQuestion = async (req, res) => {
     return res.status(201).json(questionMustAnswer)
   }
 
-  const questionsAll = await getAllValidQuestionsDb()
+  const questionsAll = await getAllValidQuestionsByCategoryDb(category)
   const questionsAllIds = [...new Set(questionsAll.map(obj => obj._id))]
 
   let questionId
@@ -221,7 +239,27 @@ const getAllValidQuestionsDb = () => {
   return new Promise((resolve, reject) => {
     Question
       .find(
-        {valid: true},
+        {
+          valid: true
+        },
+        (err, questions) => {
+          if (err) {
+            reject(err)
+          }
+          resolve(questions)
+        }
+      )
+  })
+}
+
+const getAllValidQuestionsByCategoryDb = category => {
+  return new Promise((resolve, reject) => {
+    Question
+      .find(
+        {
+          valid: true,
+          category: category
+        },
         (err, questions) => {
           if (err) {
             reject(err)

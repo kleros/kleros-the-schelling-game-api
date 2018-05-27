@@ -78,6 +78,7 @@ exports.addProfile = async (req, res) => {
   } else {
     if (ProfileInstance.lastVoteTime && Date.now() - ProfileInstance.lastVoteTime.getTime() > 3600 * 1000) { // 1 hour
       ProfileInstance.session = 0
+      ProfileInstance.score = 0
       ProfileInstance.questions = []
       ProfileInstance.votes = []
 

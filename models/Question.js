@@ -3,6 +3,7 @@ const Schema = mongoose.Schema
 
 const QuestionSchema = new Schema({
   question: String,
+  category: String,
   proposals: [String],
   created_at: {
     type: Date,
