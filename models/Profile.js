@@ -35,7 +35,8 @@ const ProfileSchema = new Schema({
   sign_msg: {
     type: String,
     unique: true
-  }
+  },
+  ip: String
 })
 
 module.exports = mongoose.model('Profile', ProfileSchema)

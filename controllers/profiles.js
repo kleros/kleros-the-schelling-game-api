@@ -47,7 +47,10 @@ exports.addProfile = async (req, res) => {
   const ProfileInstance = await getProfileBySignMsgDb(signMsg)
 
   if (_.isEmpty(ProfileInstance)) {
-    // assume the real telegram user is different than the eth address
+    const ip = (req.headers['x-forwarded-for'] ||
+      req.connection.remoteAddress ||
+      req.socket.remoteAddress ||
+      req.connection.socket.remoteAddress).split(',')[0]
     const ProfileInstanceTotal = new Profile(
       {
         session: 0,
@@ -57,7 +60,8 @@ exports.addProfile = async (req, res) => {
         startVoteTime: new Date(),
         address: address,
         sign_msg: signMsg,
-        amount: 42
+        amount: 42,
+        ip: ip
       }
     )
 

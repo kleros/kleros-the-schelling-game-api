@@ -77,7 +77,7 @@ exports.addQuestion = async (req, res) => {
 exports.getQuestion = async (req, res) => {
   let category = 'crypto'
 
-  if (req.query.theme === 'crypto' || req.query.theme === 'football') {
+  if (req.query.theme === 'crypto' || req.query.theme === 'football' || req.query.theme === 'general') {
     category = req.query.theme    
   }
 
